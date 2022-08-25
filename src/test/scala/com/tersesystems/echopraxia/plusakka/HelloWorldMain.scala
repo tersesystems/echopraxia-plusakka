@@ -2,17 +2,9 @@ package com.tersesystems.echopraxia.plusakka
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed._
-import com.tersesystems.echopraxia.plusscala.generic.SemiAutoDerivation
-import AkkaLoggerOps._
+
+import Implicits._
 import com.tersesystems.echopraxia.plusscala.LoggerFactory
-
-trait HelloWorldFieldBuilder extends AkkaFieldBuilder with SemiAutoDerivation {
-  implicit lazy val greetToValue: ToValue[HelloWorld.Greet] = gen[HelloWorld.Greet]
-  implicit lazy val greetedToValue: ToValue[HelloWorld.Greeted] = gen[HelloWorld.Greeted]
-  implicit lazy val sayHelloToValue: ToValue[HelloWorldMain.SayHello] = gen[HelloWorldMain.SayHello]
-}
-
-object HelloWorldFieldBuilder extends HelloWorldFieldBuilder
 
 object HelloWorld {
 
@@ -56,7 +48,6 @@ object HelloWorldBot {
 }
 
 object HelloWorldMain {
-
   final case class SayHello(name: String)
 
   private val logger = LoggerFactory.getLogger.withFieldBuilder(HelloWorldFieldBuilder)
@@ -64,6 +55,8 @@ object HelloWorldMain {
   def apply(): Behavior[SayHello] =
     Behaviors.setup { context =>
       val greeter = context.spawn(HelloWorld(), "greeter")
+
+      val fromName = LoggerFactory.getLogger(context.log.getName).withFieldBuilder(DefaultAkkaFieldBuilder)
 
       logger.logMessages[SayHello] {
         Behaviors.receiveMessage { message =>

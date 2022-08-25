@@ -1,22 +1,19 @@
 package com.tersesystems.echopraxia.plusakka
 
-import akka.actor.typed.{Behavior, BehaviorInterceptor, LogOptions, Signal, TypedActorContext}
 import akka.actor.typed.scaladsl.Behaviors
-import com.tersesystems.echopraxia.api.{CoreLogger, FieldBuilderResult, Utilities}
-import com.tersesystems.echopraxia.plusscala.{DefaultLoggerMethods, Logger}
-import com.tersesystems.echopraxia.plusscala.api.{AbstractLoggerSupport, Condition, FieldBuilder, LoggerSupport}
+import akka.actor.typed._
+import com.tersesystems.echopraxia.api.FieldBuilderResult
+import com.tersesystems.echopraxia.plusscala.Logger
 
-import scala.compat.java8.FunctionConverters._
 import scala.reflect.ClassTag
 
-object AkkaLoggerOps {
+object Implicits {
 
-  implicit class AkkaLogger[FB <: AkkaFieldBuilder](logger: Logger[FB]) {
+  implicit class AkkaLoggerOps[FB <: AkkaFieldBuilder](logger: Logger[FB]) {
 
     private type ToValue[T] = logger.fieldBuilder.ToValue[T]
 
-    // XXX Add this through type enrichment
-    def logMessages[T: logger.fieldBuilder.ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
+    def logMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
       Behaviors.intercept(() => new LoggingInterceptor[T](LogOptions(), logger))(behavior)
 
     class LoggingInterceptor[T: ToValue : ClassTag](val opts: LogOptions, logger: Logger[FB]) extends BehaviorInterceptor[T, T] {

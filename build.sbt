@@ -14,6 +14,7 @@ lazy val root = (project in file("."))
     name := "echopraxia-plusakka",
 
     libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
+    libraryDependencies += "com.typesafe.akka" %% "akka-actor" % AkkaVersion,
     libraryDependencies += "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion,
 
     // different styles of logger
