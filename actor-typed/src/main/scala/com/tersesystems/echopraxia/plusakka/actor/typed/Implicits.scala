@@ -1,7 +1,8 @@
-package com.tersesystems.echopraxia.plusakka
+package com.tersesystems.echopraxia.plusakka.actor.typed
 
+import akka.actor.typed.BehaviorInterceptor.{ReceiveTarget, SignalTarget}
+import akka.actor.typed.{Behavior, BehaviorInterceptor, Signal, TypedActorContext}
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed._
 import com.tersesystems.echopraxia.api.{FieldBuilderResult, Level}
 import com.tersesystems.echopraxia.plusscala.Logger
 
@@ -9,18 +10,27 @@ import scala.reflect.ClassTag
 
 object Implicits {
 
-  implicit class AkkaLoggerOps[FB <: AkkaFieldBuilder](logger: Logger[FB]) {
+  implicit class AkkaLoggerOps[FB <: AkkaTypedFieldBuilder](logger: Logger[FB]) {
 
     private type ToValue[T] = logger.fieldBuilder.ToValue[T]
 
-    def logMessages[T: ToValue : ClassTag](level: Level)(behavior: Behavior[T]): Behavior[T] =
-      Behaviors.intercept(() => new LogMessagesInterceptor[T](level, logger))(behavior)
+    def traceMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
+      Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.TRACE, logger))(behavior)
 
-    def logMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
+    def debugMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
       Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.DEBUG, logger))(behavior)
 
+    def infoMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
+      Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.INFO, logger))(behavior)
+
+    def warnMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
+      Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.WARN, logger))(behavior)
+
+    def errorMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
+      Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.ERROR, logger))(behavior)
+
     class LogMessagesInterceptor[T: ToValue : ClassTag](val level: Level, logger: Logger[FB]) extends BehaviorInterceptor[T, T] {
-      import BehaviorInterceptor._
+
       import LogMessagesInterceptor._
 
       override def aroundReceive(ctx: TypedActorContext[T], msg: T, target: ReceiveTarget[T]): Behavior[T] = {

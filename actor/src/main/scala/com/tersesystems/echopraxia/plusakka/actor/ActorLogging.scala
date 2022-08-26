@@ -1,17 +1,18 @@
-package com.tersesystems.echopraxia.plusakka
+package com.tersesystems.echopraxia.plusakka.actor
 
 import akka.actor.Actor
 import com.tersesystems.echopraxia.plusscala.{Logger, LoggerFactory}
 
-trait ActorLogging { this: Actor with FieldBuilderProvider =>
+trait ActorLogging {
+  this: Actor with AkkaFieldBuilderProvider =>
   protected val log: Logger[FieldBuilderType] = LoggerFactory.getLogger
     .withThreadContext
     .withFieldBuilder(fieldBuilder)
     .withFields(fb => {
       import fb._
-      list(
-        keyValue("system" -> context.system),
-        keyValue("self" -> self),
+      fb.list(
+        fb.keyValue("system" -> context.system),
+        fb.keyValue("self" -> self),
       )
     })
 }

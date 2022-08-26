@@ -1,6 +1,8 @@
-package com.tersesystems.echopraxia.plusakka
+package example
 
 import akka.actor.Actor
+import com.tersesystems.echopraxia.plusakka.actor.ActorLogging
+
 
 class MyActor extends Actor with ActorLogging with HelloWorldFieldBuilderProvider {
 
