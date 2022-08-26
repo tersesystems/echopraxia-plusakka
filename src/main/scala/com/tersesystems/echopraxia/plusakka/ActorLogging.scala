@@ -11,7 +11,7 @@ trait ActorLogging { this: Actor with FieldBuilderProvider =>
       import fb._
       list(
         keyValue("system" -> context.system),
-        keyValue("actor" -> self),
+        keyValue("self" -> self),
       )
     })
 }

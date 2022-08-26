@@ -2,8 +2,8 @@ package com.tersesystems.echopraxia.plusakka
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed._
-
 import Implicits._
+import com.tersesystems.echopraxia.api.Level
 import com.tersesystems.echopraxia.plusscala.LoggerFactory
 
 object HelloWorld {
@@ -14,13 +14,13 @@ object HelloWorld {
 
   private val logger = LoggerFactory.getLogger.withFieldBuilder(HelloWorldFieldBuilder)
 
-  def apply(): Behavior[Greet] = logger.logMessages[Greet](
+  def apply(): Behavior[Greet] = logger.logMessages[Greet](Level.DEBUG) {
     Behaviors.receive { (context, message) =>
       println(s"Hello ${message.whom}!")
       message.replyTo ! Greeted(message.whom, context.self)
       Behaviors.same
     }
-  )
+  }
 }
 
 object HelloWorldBot {
@@ -32,7 +32,7 @@ object HelloWorldBot {
   }
 
   private def bot(greetingCounter: Int, max: Int): Behavior[HelloWorld.Greeted] = {
-    logger.logMessages[HelloWorld.Greeted]({
+    logger.logMessages[HelloWorld.Greeted](Level.INFO, {
       Behaviors.receive { (context, message) =>
         val n = greetingCounter + 1
         logger.info(s"Greeting $n for {}", _.keyValue("message" -> message.whom))
