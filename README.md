@@ -13,6 +13,8 @@ There is an `AkkaFieldBuilder` trait that provides field builder mappings for co
 The `DefaultAkkaFieldBuilder` implementation fills out those mappings, and there's a `DefaultAkkaFieldBuilderProvider` that exposes that field builder.
 
 ```scala
+package com.tersesystems.echopraxia.plusakka.actor
+
 trait DefaultAkkaFieldBuilderProvider extends AkkaFieldBuilderProvider {
   override type FieldBuilderType = DefaultAkkaFieldBuilder.type
   override protected def fieldBuilder: FieldBuilderType = DefaultAkkaFieldBuilder
@@ -22,6 +24,8 @@ trait DefaultAkkaFieldBuilderProvider extends AkkaFieldBuilderProvider {
 The trait `ActorLogging` provides a logger, and wants a `AkkaFieldBuilderProvider` trait to be mixed in:
 
 ```scala
+package com.tersesystems.echopraxia.plusakka.actor
+
 trait ActorLogging {
   this: Actor with AkkaFieldBuilderProvider =>
   protected val log: Logger[FieldBuilderType] = ...
