@@ -113,6 +113,26 @@ def apply(): Behavior[Greet] = logger.debugMessages[Greet] {
 
 ## Akka Streams
 
+There are two main reasons why Akka Streams should always incorporate logging of some sort.
+
+The first reason is that by default, Akka Streams will [swallow exceptions](https://blog.softwaremill.com/akka-streams-pitfalls-to-avoid-part-1-75ef6403c6e6) and not log them.  As such, you need to have a `log` or `recover` op to make the exception visible.
+
+The second reason is that logging is the [best way](https://blog.softwaremill.com/akka-streams-pitfalls-to-avoid-part-2-f93e60746c58) to see what's happening in a stream.  From the blog article, it's much better to log in each stage and turn on debugging.
+
+```scala
+Source(infiniteTransactionsStream)
+ .log(“got transaction”)
+ .grouped(5)
+ .log(“grouped transactions”)
+ .scan(0.hashCode.toString) { (previousBlockHash, transactions) => 
+   (transactions.hashCode(), previousBlockHash).hashCode.toString 
+ }
+ .log(“hashed block”)
+ .mapAsync(1)(saveHashAndReturnIt)
+ .log(“saved block”)
+ .withAttributes(logLevels(onElement = DebugLevel))
+ ```
+
 The default operation in Akka is `FlowOps.log`, which takes a name and an element operation.  The `log` operator also requires an implicit `LoggingAdapter` -- and if none is found then it will compile fine, but not log!
 
 As such, the easiest thing to do to ensure proper logging is to provide the correct context by default.  This means adding a `HasLoggingAdapter` trait with an `implicit val loggingAdapter`:
