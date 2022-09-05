@@ -1,25 +1,30 @@
 package example
 
 import akka.actor.typed._
-import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import com.tersesystems.echopraxia.logback.ConditionMarker
 import com.tersesystems.echopraxia.plusakka.actor.typed.Implicits._
 import com.tersesystems.echopraxia.plusscala.LoggerFactory
+import com.tersesystems.echopraxia.plusscala.api.Condition
 
-object HelloWorld {
+object HelloWorld extends HelloWorldFieldBuilder {
 
-  private val logger = LoggerFactory.getLogger.withFieldBuilder(HelloWorldFieldBuilder)
+  private val logger = LoggerFactory.getLogger.withFieldBuilder(this)
+
+  private val condition = Condition.always
 
   def apply(): Behavior[Greet] = logger.debugMessages[Greet] {
     Behaviors.receive { (context, message) =>
+      context.log.info(ConditionMarker.apply(condition.asJava), "Received message: {}", keyValue("foo", message))
       message.replyTo ! Greeted(message.whom, context.self)
       Behaviors.same
     }
   }
 }
 
-object HelloWorldBot {
+object HelloWorldBot extends HelloWorldFieldBuilder {
 
-  private val logger = LoggerFactory.getLogger.withFieldBuilder(HelloWorldFieldBuilder)
+  private val logger = LoggerFactory.getLogger.withFieldBuilder(this)
 
   def apply(max: Int): Behavior[Greeted] = {
     bot(0, max)
@@ -29,7 +34,7 @@ object HelloWorldBot {
     logger.debugMessages[Greeted] {
       Behaviors.receive { (context, message) =>
         val n = greetingCounter + 1
-        logger.info(s"Greeting $n for {}", _.keyValue("message" -> message.whom))
+        context.log.info(s"Greeting $n for {}", keyValue("message" -> message.whom))
         if (n == max) {
           Behaviors.stopped
         } else {
@@ -41,22 +46,17 @@ object HelloWorldBot {
   }
 }
 
-object HelloWorldMain {
+object HelloWorldMain extends HelloWorldFieldBuilder {
   final case class SayHello(name: String)
-
-  private val logger = LoggerFactory.getLogger.withFieldBuilder(HelloWorldFieldBuilder)
 
   def apply(): Behavior[SayHello] =
     Behaviors.setup { context =>
       val greeter = context.spawn(HelloWorld(), "greeter")
-
-      logger.debugMessages[SayHello] {
         Behaviors.receiveMessage { message =>
           val replyTo = context.spawn(HelloWorldBot(max = 3), message.name)
           greeter ! Greet(message.name, replyTo)
           Behaviors.same
         }
-      }
     }
 
   def main(args: Array[String]): Unit = {
@@ -65,6 +65,18 @@ object HelloWorldMain {
 
     system ! HelloWorldMain.SayHello("World")
     system ! HelloWorldMain.SayHello("Akka")
+  }
+
+  // Need to work with context
+  Behaviors.setup[String] { context: ActorContext[String] =>
+    context.setLoggerName("com.myservice.BackendManager")
+
+    context.log.info("Starting up")
+
+    Behaviors.receiveMessage { message =>
+      context.log.debug("Received message: {}", message)
+      Behaviors.same
+    }
   }
 }
 
