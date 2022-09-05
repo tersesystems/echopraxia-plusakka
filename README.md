@@ -2,7 +2,7 @@
 
 This library provides Akka specific functionality for integrating [Echopraxia](https://github.com/tersesystems/echopraxia) structured logging into [Akka](https://akka.io).
 
-This README assumes that you have `akka-slf4j` set up and have logging configured appropriately in Akka.
+This README assumes that you have `akka-slf4j` set up and have logging configured appropriately in Akka, and have the [Scala API](https://github.com/tersesystems/echopraxia-plusscala) in scope.
 
 ## Akka Actors
 
