@@ -1,7 +1,7 @@
 package example
 
 import akka.actor.Actor
-import com.tersesystems.echopraxia.plusakka.actor.{ActorLogging, DefaultAkkaFieldBuilderProvider}
+import akka.echopraxia.actor.{ActorLogging, DefaultAkkaFieldBuilderProvider}
 
 class MyActor extends Actor with ActorLogging with DefaultAkkaFieldBuilderProvider {
 

@@ -1,6 +1,6 @@
-package com.tersesystems.echopraxia.plusakka.actor.typed
+package akka.echopraxia.actor.typed
 
-import com.tersesystems.echopraxia.plusakka.actor.{AkkaFieldBuilder, DefaultAkkaFieldBuilder}
+import akka.echopraxia.actor.{AkkaFieldBuilder, DefaultAkkaFieldBuilder}
 
 trait AkkaTypedFieldBuilder extends AkkaFieldBuilder {
   implicit def signalToValue: ToValue[akka.actor.typed.Signal]

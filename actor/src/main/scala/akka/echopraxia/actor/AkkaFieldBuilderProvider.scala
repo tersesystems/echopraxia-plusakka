@@ -1,5 +1,4 @@
-package com.tersesystems.echopraxia.plusakka.actor
-
+package akka.echopraxia.actor
 
 trait AkkaFieldBuilderProvider {
   type FieldBuilderType <: AkkaFieldBuilder

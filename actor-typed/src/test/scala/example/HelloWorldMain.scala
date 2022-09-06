@@ -3,7 +3,6 @@ package example
 import akka.actor.typed._
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import com.tersesystems.echopraxia.logback.ConditionMarker
-import com.tersesystems.echopraxia.plusakka.actor.typed.Implicits._
 import com.tersesystems.echopraxia.plusscala.LoggerFactory
 import com.tersesystems.echopraxia.plusscala.api.Condition
 

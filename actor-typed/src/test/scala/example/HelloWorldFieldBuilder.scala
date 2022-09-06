@@ -1,7 +1,7 @@
 package example
 
-import com.tersesystems.echopraxia.plusakka.actor.AkkaFieldBuilderProvider
-import com.tersesystems.echopraxia.plusakka.actor.typed.DefaultAkkaTypedFieldBuilder
+import akka.echopraxia.actor.AkkaFieldBuilderProvider
+import akka.echopraxia.actor.typed.DefaultAkkaTypedFieldBuilder
 
 trait HelloWorldFieldBuilder extends DefaultAkkaTypedFieldBuilder {
   implicit val greetToValue: ToObjectValue[Greet] = { greet: Greet =>

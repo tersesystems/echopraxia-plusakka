@@ -13,7 +13,7 @@ There is an `AkkaFieldBuilder` trait that provides field builder mappings for co
 The `DefaultAkkaFieldBuilder` implementation fills out those mappings, and there's a `DefaultAkkaFieldBuilderProvider` that exposes that field builder.
 
 ```scala
-package com.tersesystems.echopraxia.plusakka.actor
+package akka.echopraxia.actor
 
 trait DefaultAkkaFieldBuilderProvider extends AkkaFieldBuilderProvider {
   override type FieldBuilderType = DefaultAkkaFieldBuilder.type
@@ -24,7 +24,7 @@ trait DefaultAkkaFieldBuilderProvider extends AkkaFieldBuilderProvider {
 The trait `ActorLogging` provides a logger, and wants a `AkkaFieldBuilderProvider` trait to be mixed in:
 
 ```scala
-package com.tersesystems.echopraxia.plusakka.actor
+package akka.echopraxia.actor
 
 trait ActorLogging {
   this: Actor with AkkaFieldBuilderProvider =>
@@ -35,7 +35,7 @@ trait ActorLogging {
 This means that at the end of it, you can add `ActorLogging with DefaultAkkaFieldBuilderProvider` to your actor, and it will log appropriately.
 
 ```scala
-import com.tersesystems.echopraxia.plusakka.actor._
+import akka.echopraxia.actor._
 
 class MyActor extends Actor with ActorLogging with DefaultAkkaFieldBuilderProvider {
 
@@ -79,7 +79,7 @@ trait HelloWorldFieldBuilder extends DefaultAkkaTypedFieldBuilder {
 object HelloWorldFieldBuilder extends HelloWorldFieldBuilder
 ```
 
-Akka Typed logging uses the SLF4J logger API by default.  You can use the "Direct SLF4J API" from Echopraxia to pass through conditions and fields through markers, and arguments can be passed through the field builder interface as usual.
+Akka Typed logging uses the SLF4J logger API when exposing `context.log`.  You can use the "Direct SLF4J API" from Echopraxia to pass through conditions and fields through markers, and arguments can be passed through the field builder interface as usual.
 
 ```scala
 object HelloWorld extends HelloWorldFieldBuilder {
@@ -94,12 +94,14 @@ object HelloWorld extends HelloWorldFieldBuilder {
 }
 ```
 
+**Note**: Echopraxia filters will not go through the direct API, so if you have "global" conditions or fields that you want to apply to all loggers, they will need to be added directly to `context.log`, or you'll need to add a Logback filter or turbo filter.
+
 ### Alternative to Behaviors.logMessages
 
 The `com.tersesystems.echopraxia.plusakka.actor.typed.Implicits` trait contains `AkkaLoggerOps`, which has `logger.debugMessages`.  This can be used as an alternative to `Behaviors.logMessages` [logging](https://doc.akka.io/docs/akka/current/typed/logging.html#behaviors-logmessages).
 
 ```scala
-import com.tersesystems.echopraxia.plusakka.actor.typed.Implicits._
+import akka.echopraxia.actor.typed.Implicits._
 
 val logger = LoggerFactory.getLogger.withFieldBuilder(HelloWorldFieldBuilder)
 

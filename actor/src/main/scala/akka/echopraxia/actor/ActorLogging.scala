@@ -1,4 +1,4 @@
-package com.tersesystems.echopraxia.plusakka.actor
+package akka.echopraxia.actor
 
 import akka.actor.Actor
 import com.tersesystems.echopraxia.plusscala.{Logger, LoggerFactory}

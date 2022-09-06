@@ -4,3 +4,5 @@
 *.log
 *.ndjson
 target/
+.vscode/
+.metals/

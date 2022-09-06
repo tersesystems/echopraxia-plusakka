@@ -1,4 +1,4 @@
-package com.tersesystems.echopraxia.plusakka.actor.typed
+package akka.echopraxia.actor.typed
 
 import akka.actor.typed.BehaviorInterceptor.{ReceiveTarget, SignalTarget}
 import akka.actor.typed.{Behavior, BehaviorInterceptor, Signal, TypedActorContext}

@@ -1,17 +1,23 @@
 package com.tersesystems.echopraxia.plusakka.stream
 
-import akka.NotUsed
+import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
+import akka.echopraxia.stream.DefaultAkkaStreamFieldBuilder
 import akka.event.{Logging, LoggingAdapter}
+import akka.stream.Attributes
 import akka.stream.scaladsl._
+import akka.stream.testkit.TestSubscriber
 import akka.stream.testkit.scaladsl._
 import akka.testkit.TestKit
+import com.tersesystems.echopraxia.plusscala.LoggerFactory
 import com.tersesystems.echopraxia.plusscala.api.FieldBuilder
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class AkkaStreamSpec extends TestKit(ActorSystem("MySpec")) with AnyWordSpecLike with Matchers with BeforeAndAfterAll {
+
+  private val logger = LoggerFactory.getLogger.withFieldBuilder(DefaultAkkaStreamFieldBuilder)
 
   override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)

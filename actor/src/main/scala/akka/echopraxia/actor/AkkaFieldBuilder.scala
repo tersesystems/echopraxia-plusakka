@@ -1,9 +1,15 @@
-package com.tersesystems.echopraxia.plusakka.actor
+package akka.echopraxia.actor
 
+import akka.{Done, NotUsed}
 import com.tersesystems.echopraxia.api.Field
 import com.tersesystems.echopraxia.plusscala.api.FieldBuilder
 
 trait AkkaFieldBuilder extends FieldBuilder {
+
+  implicit def doneToValue: ToValue[Done]
+
+  implicit def notUsedToValue: ToValue[NotUsed]
+
   implicit def addressToValue: ToValue[akka.actor.Address]
   implicit def actorRefToValue: ToValue[akka.actor.ActorRef]
   implicit def actorPathToValue: ToValue[akka.actor.ActorPath]
@@ -21,6 +27,11 @@ trait AkkaFieldBuilder extends FieldBuilder {
 }
 
 trait DefaultAkkaFieldBuilder extends AkkaFieldBuilder {
+
+  override implicit val doneToValue: ToValue[Done] = _ => ToValue(Done.toString)
+
+  override implicit val notUsedToValue: ToValue[NotUsed] = _ => ToValue(NotUsed.toString)
+
   override implicit val addressToValue: ToValue[akka.actor.Address] = { address =>
     ToValue(address.toString)
   }
