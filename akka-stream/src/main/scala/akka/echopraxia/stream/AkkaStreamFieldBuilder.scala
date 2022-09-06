@@ -115,6 +115,12 @@ class DefaultAkkaStreamFieldBuilder extends AkkaStreamFieldBuilder with DefaultA
   override implicit def queueOfferResultToValue: ToValue[QueueOfferResult] = { qor =>
     ToValue(qor.toString)
   }
+
+  override implicit def graphToValue: ToValue[GraphStage[_]] = { graphStage =>
+    ToObjectValue(
+      keyValue("" -> graphStage.at)
+    )
+  }
 }
 
 object DefaultAkkaStreamFieldBuilder extends DefaultAkkaStreamFieldBuilder
