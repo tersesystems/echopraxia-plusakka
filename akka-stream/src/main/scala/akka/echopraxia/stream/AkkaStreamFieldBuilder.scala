@@ -4,7 +4,6 @@ import akka.echopraxia.actor.{AkkaFieldBuilder, DefaultAkkaFieldBuilder}
 import akka.stream._
 import akka.stream.impl.TraversalBuilder
 import akka.stream.scaladsl.{Flow, Sink, Source}
-import akka.stream.stage.GraphStage
 
 trait AkkaStreamFieldBuilder extends AkkaFieldBuilder {
 
@@ -19,8 +18,6 @@ trait AkkaStreamFieldBuilder extends AkkaFieldBuilder {
   implicit def sourceShapeToValue: ToValue[SourceShape[_]]
 
   implicit def flowShapeToValue: ToValue[FlowShape[_, _]]
-
-  implicit def graphToValue: ToValue[GraphStage[_]]
 
   implicit def inletToValue: ToValue[Inlet[_]]
 
@@ -37,6 +34,8 @@ trait AkkaStreamFieldBuilder extends AkkaFieldBuilder {
   implicit def restartSettingsToValue: ToValue[RestartSettings]
 
   implicit def queueOfferResultToValue: ToValue[QueueOfferResult]
+
+  implicit def delayOverflowStrategyToValue: ToValue[DelayOverflowStrategy]
 }
 
 class DefaultAkkaStreamFieldBuilder extends AkkaStreamFieldBuilder with DefaultAkkaFieldBuilder {
@@ -116,11 +115,10 @@ class DefaultAkkaStreamFieldBuilder extends AkkaStreamFieldBuilder with DefaultA
     ToValue(qor.toString)
   }
 
-  override implicit def graphToValue: ToValue[GraphStage[_]] = { graphStage =>
-    ToObjectValue(
-      keyValue("" -> graphStage.at)
-    )
+  implicit def delayOverflowStrategyToValue: ToValue[DelayOverflowStrategy] = { dos =>
+    ToValue(dos.toString)
   }
+
 }
 
 object DefaultAkkaStreamFieldBuilder extends DefaultAkkaStreamFieldBuilder
