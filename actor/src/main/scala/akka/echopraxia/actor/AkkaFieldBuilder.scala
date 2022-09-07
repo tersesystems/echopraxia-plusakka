@@ -100,7 +100,7 @@ trait DefaultAkkaFieldBuilder extends AkkaFieldBuilder {
         keyValue("withinTimeRange" -> withinTimeRange.toString)
       )
     case other =>
-      ToObjectValue(
+      ToValue(
         keyValue("className" -> other.getClass.getName),
       )
   }

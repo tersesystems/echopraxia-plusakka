@@ -6,6 +6,8 @@ import com.tersesystems.echopraxia.logback.ConditionMarker
 import com.tersesystems.echopraxia.plusscala.LoggerFactory
 import com.tersesystems.echopraxia.plusscala.api.Condition
 
+import akka.echopraxia.actor.typed.Implicits._
+
 object HelloWorld extends HelloWorldFieldBuilder {
 
   private val logger = LoggerFactory.getLogger.withFieldBuilder(this)
