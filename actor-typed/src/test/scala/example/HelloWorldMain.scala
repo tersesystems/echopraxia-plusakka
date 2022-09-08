@@ -2,23 +2,25 @@ package example
 
 import akka.actor.typed._
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import com.tersesystems.echopraxia.logback.ConditionMarker
 import com.tersesystems.echopraxia.plusscala.LoggerFactory
 import com.tersesystems.echopraxia.plusscala.api.Condition
-
 import akka.echopraxia.actor.typed.Implicits._
 
 object HelloWorld extends HelloWorldFieldBuilder {
 
-  private val logger = LoggerFactory.getLogger.withFieldBuilder(this)
-
   private val condition = Condition.always
 
-  def apply(): Behavior[Greet] = logger.debugMessages[Greet] {
-    Behaviors.receive { (context, message) =>
-      context.log.info(ConditionMarker.apply(condition.asJava), "Received message: {}", keyValue("foo", message))
-      message.replyTo ! Greeted(message.whom, context.self)
-      Behaviors.same
+  def apply(): Behavior[Greet] = Behaviors.setup { context =>
+    val logger = LoggerFactory.getLogger
+      .withFieldBuilder(this)
+      .withFields(fb => fb.keyValue("context" -> context))
+
+    logger.debugMessages[Greet] {
+      Behaviors.receiveMessage { message =>
+        logger.info("Received message: {}", fb => fb.keyValue("foo", message))
+        message.replyTo ! Greeted(message.whom, context.self)
+        Behaviors.same
+      }
     }
   }
 }

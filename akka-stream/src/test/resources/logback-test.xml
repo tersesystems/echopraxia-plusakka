@@ -2,8 +2,7 @@
 <configuration>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%date{H:mm:ss.SSS} %logger %highlight(%-5level) [%thread]: %message%n%ex</pattern>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
         </encoder>
     </appender>
 
