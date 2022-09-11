@@ -79,13 +79,71 @@ trait HelloWorldFieldBuilder extends DefaultAkkaTypedFieldBuilder {
 object HelloWorldFieldBuilder extends HelloWorldFieldBuilder
 ```
 
-Akka Typed logging uses the SLF4J logger API when exposing `context.log`.  You can use the "Direct SLF4J API" from Echopraxia to pass through conditions and fields through markers, and arguments can be passed through the field builder interface as usual.
+Akka Typed incorporates the context through behaviors, using a context.  This context is added to `context.log` as MDC, but you can add it directly as context fields to the logger using `withFields`.  This is call by name, so you can optimize it by freezing it in `Behaviors.setup`:
+
+```scala
+package example
+
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ActorSystem, Behavior}
+import akka.echopraxia.actor.typed.DefaultAkkaTypedFieldBuilder
+import com.tersesystems.echopraxia.plusscala.LoggerFactory
+
+import scala.concurrent.duration._
+
+object Main {
+
+  trait Command
+  case object Tick extends Command
+  case class Echo(message: String) extends Command
+
+  def main(args: Array[String]): Unit = {
+    val system = ActorSystem(MyActor(), "hello")
+  }
+
+  object MyActor {
+    def apply(): Behavior[Tick.type] = Behaviors.setup { context =>
+      Behaviors.withTimers { timers =>
+        val echo = context.spawn(EchoActor(), "echo")
+        timers.startTimerWithFixedDelay(Tick, 1.seconds)
+        Behaviors.receiveMessage {
+          case Tick =>
+            echo ! Echo(java.time.Instant.now().toString)
+            Behaviors.same
+        }
+      }
+    }
+  }
+
+  trait MyFieldBuilder extends DefaultAkkaTypedFieldBuilder {
+    implicit val commandToValue: ToValue[Command] = cmd => ToValue(cmd.toString)
+  }
+  object MyFieldBuilder extends MyFieldBuilder
+
+  object EchoActor {
+    def apply(): Behavior[Echo] = Behaviors.setup { context =>
+      val frozenContext = MyFieldBuilder.keyValue("context" -> context)
+      val logger = LoggerFactory.getLogger
+        .withFieldBuilder(MyFieldBuilder)
+        .withFields(_ => frozenContext) // call-by-name
+
+      Behaviors.receiveMessage { echo =>
+        logger.info("echoActor: {}", _.keyValue("echo", echo))
+        Behaviors.same
+      }
+    }
+  }
+}
+```
+
+You can also use the "Direct SLF4J API" from Echopraxia to pass through conditions and fields through markers, and arguments can be passed through the field builder interface as usual.
 
 ```scala
 object HelloWorld extends HelloWorldFieldBuilder {
   def apply(): Behavior[Greet] = {
     Behaviors.receive { (context, message) =>
       // keyValue(name, ToValue) is provided by field builder API 
+      // context.log will set MDC values when called for the thread.
       context.log.info("Received message: {}", keyValue("foo", message))
       message.replyTo ! Greeted(message.whom, context.self)
       Behaviors.same
@@ -98,7 +156,7 @@ object HelloWorld extends HelloWorldFieldBuilder {
 
 ### Alternative to Behaviors.logMessages
 
-The `com.tersesystems.echopraxia.plusakka.actor.typed.Implicits` trait contains `AkkaLoggerOps`, which has `logger.debugMessages`.  This can be used as an alternative to `Behaviors.logMessages` [logging](https://doc.akka.io/docs/akka/current/typed/logging.html#behaviors-logmessages).
+The `akka.echopraxia.actor.typed.Implicits` trait contains `AkkaLoggerOps`, which has `logger.debugMessages`.  This can be used as an alternative to `Behaviors.logMessages` [logging](https://doc.akka.io/docs/akka/current/typed/logging.html#behaviors-logmessages).
 
 ```scala
 import akka.echopraxia.actor.typed.Implicits._

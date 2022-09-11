@@ -1,8 +1,8 @@
 package akka.echopraxia.actor.typed
 
 import akka.actor.typed.BehaviorInterceptor.{ReceiveTarget, SignalTarget}
-import akka.actor.typed.{Behavior, BehaviorInterceptor, Signal, TypedActorContext}
 import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{Behavior, BehaviorInterceptor, Signal, TypedActorContext}
 import com.tersesystems.echopraxia.api.{FieldBuilderResult, Level}
 import com.tersesystems.echopraxia.plusscala.Logger
 

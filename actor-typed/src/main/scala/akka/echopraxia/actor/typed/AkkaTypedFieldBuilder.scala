@@ -1,7 +1,7 @@
 package akka.echopraxia.actor.typed
 
-import akka.actor.{Address, ClassicActorContextProvider}
 import akka.actor.typed.internal.adapter.ActorSystemAdapter
+import akka.actor.{Address, ClassicActorContextProvider}
 import akka.echopraxia.actor.{AkkaFieldBuilder, DefaultAkkaFieldBuilder}
 
 trait AkkaTypedFieldBuilder extends AkkaFieldBuilder {
