@@ -3,6 +3,7 @@ package example
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorSystem, Behavior}
 import akka.echopraxia.actor.typed.DefaultAkkaTypedFieldBuilder
+import ch.qos.logback.classic.LoggerContext
 import com.tersesystems.echopraxia.plusscala.LoggerFactory
 
 import scala.concurrent.duration._
@@ -14,7 +15,13 @@ object Main {
   case class Echo(message: String) extends Command
 
   def main(args: Array[String]): Unit = {
+    // Stop the warnings by explicitly managing logger context
+    val loggerContext: LoggerContext = org.slf4j.LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
+    loggerContext.start()
     val system = ActorSystem(MyActor(), "hello")
+    system.whenTerminated.map { _ =>
+      loggerContext.stop()
+    }(scala.concurrent.ExecutionContext.global)
   }
 
   object MyActor {

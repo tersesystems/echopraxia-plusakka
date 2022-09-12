@@ -29,9 +29,8 @@ lazy val logging = (project in file("logging")).settings(NoPublish).settings(
   //
   libraryDependencies += "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
   libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11" % Test,
-  libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11" % Test,
   libraryDependencies += "net.logstash.logback" % "logstash-logback-encoder" % "7.2" % Test
-) // XXX needs to be NoPublish
+)
 
 lazy val actor = (project in file("actor")).settings(
   crossScalaVersions := supportedScalaVersions,
@@ -42,7 +41,8 @@ lazy val actor = (project in file("actor")).settings(
 
   // different styles of logger
   libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % Test,
-    libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % AkkaVersion % Test,
+  libraryDependencies += "com.tersesystems.echopraxia" % "logstash" % echopraxiaVersion % Test,
+  libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % AkkaVersion % Test,
 ).dependsOn(logging % "test->test")
 
 lazy val actorTyped = (project in file("actor-typed")).settings(
@@ -53,6 +53,7 @@ lazy val actorTyped = (project in file("actor-typed")).settings(
   libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
 
   libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % Test,
+  libraryDependencies += "com.tersesystems.echopraxia" % "logstash" % echopraxiaVersion % Test,
   libraryDependencies += "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
 ).dependsOn(actor, logging % "test->test")
 
