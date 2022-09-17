@@ -3,8 +3,9 @@ package example
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorSystem, Behavior}
 import akka.echopraxia.actor.typed.DefaultAkkaTypedFieldBuilder
+import akka.echopraxia.actor.typed.Implicits._
 import ch.qos.logback.classic.LoggerContext
-import com.tersesystems.echopraxia.plusscala.LoggerFactory
+import com.tersesystems.echopraxia.plusscala._
 
 import scala.concurrent.duration._
 
@@ -45,10 +46,7 @@ object Main {
 
   object EchoActor {
     def apply(): Behavior[Echo] = Behaviors.setup { context =>
-      val frozenContext = MyFieldBuilder.keyValue("context" -> context)
-      val logger = LoggerFactory.getLogger
-        .withFieldBuilder(MyFieldBuilder)
-        .withFields(_ => frozenContext) // call-by-name
+      val logger = LoggerFactory.getLogger.withFieldBuilder(MyFieldBuilder).withActorContext(context)
 
       Behaviors.receiveMessage { echo =>
         logger.info("echoActor: {}", _.keyValue("echo", echo))

@@ -1,7 +1,7 @@
 package akka.echopraxia.actor.typed
 
 import akka.actor.typed.BehaviorInterceptor.{ReceiveTarget, SignalTarget}
-import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{Behavior, BehaviorInterceptor, Signal, TypedActorContext}
 import com.tersesystems.echopraxia.api.{FieldBuilderResult, Level}
 import com.tersesystems.echopraxia.plusscala.Logger
@@ -14,21 +14,52 @@ object Implicits {
 
     private type ToValue[T] = logger.fieldBuilder.ToValue[T]
 
+    /**
+     * Calls `withFields` with the actor context.
+     *
+     * @param context the actor context
+     * @tparam T the actor context type
+     * @return the logger with the context as a field.
+     */
+    def withActorContext[T](context: ActorContext[T]): Logger[FB] = {
+      val fb = logger.fieldBuilder
+      val frozenContext = fb.keyValue("context" -> context)(fb.typedActorContextRefToValue)
+      logger.withFields(_ => frozenContext)
+    }
+
+    /**
+     * Adds log message interceptions at a TRACE level.
+     */
     def traceMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
       Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.TRACE, logger))(behavior)
 
+    /**
+     * Adds log message interceptions at a DEBUG level.
+     */
     def debugMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
       Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.DEBUG, logger))(behavior)
 
+    /**
+     * Adds log message interceptions at an INFO level.
+     */
     def infoMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
       Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.INFO, logger))(behavior)
 
+    /**
+     * Adds log message interceptions at a WARN level.
+     */
     def warnMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
       Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.WARN, logger))(behavior)
 
+    /**
+     * Adds log message interceptions at an ERROR level.
+     */
     def errorMessages[T: ToValue : ClassTag](behavior: Behavior[T]): Behavior[T] =
       Behaviors.intercept(() => new LogMessagesInterceptor[T](Level.ERROR, logger))(behavior)
 
+    /**
+     * This class extends a behavior interceptor to add logging that is typed around the message.
+     */
     class LogMessagesInterceptor[T: ToValue : ClassTag](val level: Level, logger: Logger[FB]) extends BehaviorInterceptor[T, T] {
 
       import LogMessagesInterceptor._

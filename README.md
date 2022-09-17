@@ -79,7 +79,7 @@ trait HelloWorldFieldBuilder extends DefaultAkkaTypedFieldBuilder {
 object HelloWorldFieldBuilder extends HelloWorldFieldBuilder
 ```
 
-Akka Typed incorporates the context through behaviors, using a context.  This context is added to `context.log` as MDC, but you can add it directly as context fields to the logger using `withFields`.  This is call by name, so you can optimize it by freezing it in `Behaviors.setup`:
+Akka Typed incorporates the context through behaviors, using a context.  This context is added to `context.log` as MDC, but you can add it directly as context to the logger using `withActorContext`, which is a type enrichment method you can add with `import akka.echopraxia.actor.typed.Implicits._`:
 
 ```scala
 package example
@@ -87,6 +87,7 @@ package example
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorSystem, Behavior}
 import akka.echopraxia.actor.typed.DefaultAkkaTypedFieldBuilder
+import akka.echopraxia.actor.typed.Implicits._
 import com.tersesystems.echopraxia.plusscala.LoggerFactory
 
 import scala.concurrent.duration._
@@ -125,7 +126,7 @@ object Main {
       val frozenContext = MyFieldBuilder.keyValue("context" -> context)
       val logger = LoggerFactory.getLogger
         .withFieldBuilder(MyFieldBuilder)
-        .withFields(_ => frozenContext) // call-by-name
+        .withActorContext(context)
 
       Behaviors.receiveMessage { echo =>
         logger.info("echoActor: {}", _.keyValue("echo", echo))
@@ -136,27 +137,7 @@ object Main {
 }
 ```
 
-You can also use the "Direct SLF4J API" from Echopraxia to pass through conditions and fields through markers, and arguments can be passed through the field builder interface as usual.
-
-```scala
-object HelloWorld extends HelloWorldFieldBuilder {
-  def apply(): Behavior[Greet] = {
-    Behaviors.receive { (context, message) =>
-      // keyValue(name, ToValue) is provided by field builder API 
-      // context.log will set MDC values when called for the thread.
-      context.log.info("Received message: {}", keyValue("foo", message))
-      message.replyTo ! Greeted(message.whom, context.self)
-      Behaviors.same
-    }
-  }
-}
-```
-
-**Note**: Echopraxia filters will not go through the direct API, so if you have "global" conditions or fields that you want to apply to all loggers, they will need to be added directly to `context.log`, or you'll need to add a Logback filter or turbo filter.
-
-### Alternative to Behaviors.logMessages
-
-The `akka.echopraxia.actor.typed.Implicits` trait contains `AkkaLoggerOps`, which has `logger.debugMessages`.  This can be used as an alternative to `Behaviors.logMessages` [logging](https://doc.akka.io/docs/akka/current/typed/logging.html#behaviors-logmessages).
+Type enrichment also adds `logger.debugMessages`, which can be used in a similar fashion to `Behaviors.logMessages` [logging](https://doc.akka.io/docs/akka/current/typed/logging.html#behaviors-logmessages).
 
 ```scala
 import akka.echopraxia.actor.typed.Implicits._
@@ -171,6 +152,24 @@ def apply(): Behavior[Greet] = logger.debugMessages[Greet] {
 }
 ```
 
+If you would rather use `context.log`, you can use the "Direct SLF4J API" from Echopraxia to pass through conditions and fields through markers, and arguments can be passed through the field builder interface as usual.
+
+```scala
+object HelloWorld extends MyFieldBuilder {
+  def apply(): Behavior[Greet] = {
+    Behaviors.receive { (context, message) =>
+      // keyValue(name, ToValue) is provided by field builder API 
+      // context.log will set MDC values when called for the thread.
+      context.log.info("Received message: {}", keyValue("foo", message))
+      message.replyTo ! Greeted(message.whom, context.self)
+      Behaviors.same
+    }
+  }
+}
+```
+
+**Note**: Echopraxia filters will not go through the direct API, so if you have "global" conditions or fields that you want to apply to all loggers, they will need to be added directly to `context.log`, or you'll need to add a Logback filter or turbo filter.
+
 ## Akka Streams
 
 There are two main reasons why Akka Streams should always incorporate logging of some sort.
@@ -181,15 +180,15 @@ The second reason is that logging is the [best way](https://blog.softwaremill.co
 
 ```scala
 Source(infiniteTransactionsStream)
- .log(“got transaction”)
+ .log("got transaction")
  .grouped(5)
- .log(“grouped transactions”)
+ .log("grouped transactions")
  .scan(0.hashCode.toString) { (previousBlockHash, transactions) => 
    (transactions.hashCode(), previousBlockHash).hashCode.toString 
  }
- .log(“hashed block”)
+ .log("hashed block")
  .mapAsync(1)(saveHashAndReturnIt)
- .log(“saved block”)
+ .log("saved block")
  .withAttributes(logLevels(onElement = DebugLevel))
  ```
 
