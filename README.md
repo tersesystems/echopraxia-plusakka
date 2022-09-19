@@ -178,54 +178,13 @@ The first reason is that by default, Akka Streams will [swallow exceptions](http
 
 The second reason is that logging is the [best way](https://blog.softwaremill.com/akka-streams-pitfalls-to-avoid-part-2-f93e60746c58) to see what's happening in a stream.  From the blog article, it's much better to log in each stage and turn on debugging.
 
+You can't use a LoggingAdapter here at all, because LoggingAdapter throws away the original arguments and only logs a string template -- so logstash structuredArguments won't translate well and you can't get JSON into the underlying logger.
+
 ```scala
-Source(infiniteTransactionsStream)
- .log("got transaction")
- .grouped(5)
- .log("grouped transactions")
- .scan(0.hashCode.toString) { (previousBlockHash, transactions) => 
-   (transactions.hashCode(), previousBlockHash).hashCode.toString 
- }
- .log("hashed block")
- .mapAsync(1)(saveHashAndReturnIt)
- .log("saved block")
- .withAttributes(logLevels(onElement = DebugLevel))
+import akka.echopraxia.stream.Implicits._
+
+private val source: Source[Int, NotUsed] = Source(1 to 4).filter(_ % 2 == 0)
+  .log2.withCondition(condition).withFields(fb => fb.keyValue("foo", "bar")).info("before", (fb, el) => fb.keyValue("elem", el))
+  .map(_ * 2)
+  .log2.debug("after", (fb, el) => fb.keyValue("elem", el))
  ```
-
-The default operation in Akka is `FlowOps.log`, which takes a name and an element operation.  The `log` operator also requires an implicit `LoggingAdapter` -- and if none is found then it will compile fine, but not log!
-
-As such, the easiest thing to do to ensure proper logging is to provide the correct context by default.  This means adding a `HasLoggingAdapter` trait with an `implicit val loggingAdapter`:
-
-```scala
-import akka.actor.ActorSystem
-import akka.event.{Logging, LoggingAdapter}
-
-trait HasLoggingAdapter {
-  implicit val loggingAdapter: LoggingAdapter
-
-  def fromSystem(implicit system: ActorSystem): LoggingAdapter = Logging.getLogger(system, this)
-}
-```
-
-And then from there, requiring the implementation of the trait to have a logging adapter from the actor system, and adding the appropriate field builder to convert the element to a value:
-
-```scala
-object Main {
-  private implicit val actorSystem: ActorSystem = ActorSystem("example")
-
-  def main(args: Array[String]): Unit = {
-    DoThing().runWith(Sink.ignore)
-  }
-
-  object DoThing extends FieldBuilder with HasLoggingAdapter {
-    override implicit val loggingAdapter: LoggingAdapter = fromSystem
-
-    private val source: Source[Int, NotUsed] = Source(1 to 4).filter(_ % 2 == 0)
-      .log("before", keyValue("element", _))
-      .map(_ * 2)
-      .log("after", keyValue("element", _))
-
-    def apply(): Source[Int, NotUsed] = source
-  }
-}
-```

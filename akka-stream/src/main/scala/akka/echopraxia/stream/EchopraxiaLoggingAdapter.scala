@@ -1,33 +1,19 @@
 package akka.echopraxia.stream
+import com.tersesystems.echopraxia.api.{CoreLogger, CoreLoggerFactory}
 
-import akka.stream.Materializer
-import com.tersesystems.echopraxia.plusscala.{Logger, LoggerFactory}
 
 trait EchopraxiaLoggingAdapter[FB] {
-  def getLogger()(implicit mat: Materializer): Logger[FB]
+  def core: CoreLogger
 
-  val fieldBuilder: FB
+  def fieldBuilder: FB
 }
 
 object EchopraxiaLoggingAdapter {
 
-  def fromLogger[FB <: AkkaStreamFieldBuilder](logger: Logger[FB]): EchopraxiaLoggingAdapter[FB] = new EchopraxiaLoggingAdapter[FB] {
-    override def getLogger()(implicit mat: Materializer): Logger[FB] = {
-      val frozenMatField = fieldBuilder.keyValue("materializer" -> mat.supervisor.path)(fieldBuilder.actorPathToValue)
-      logger.withFields(_ => frozenMatField)
-    }
-
-    override val fieldBuilder: FB = logger.fieldBuilder
-  }
-
-  def fromFieldBuilder[FB <: AkkaStreamFieldBuilder](fb: FB, name: String): EchopraxiaLoggingAdapter[FB] = new EchopraxiaLoggingAdapter[FB] {
-    override def getLogger()(implicit mat: Materializer): Logger[FB] = {
-      val frozenMatField = fieldBuilder.keyValue("materializer" -> mat.supervisor.path)(fieldBuilder.actorPathToValue)
-      LoggerFactory.getLogger(name)
-        .withFieldBuilder(fieldBuilder)
-        .withFields(_ => frozenMatField)
-    }
-
+  def apply[FB <: AkkaStreamFieldBuilder](name: String, fb: FB): EchopraxiaLoggingAdapter[FB] = new EchopraxiaLoggingAdapter[FB] {
+    override val core: CoreLogger = CoreLoggerFactory.getLogger("", name)
     override val fieldBuilder: FB = fb
   }
+
+  def apply[FB <: AkkaStreamFieldBuilder](clazz: Class[_], fb: FB): EchopraxiaLoggingAdapter[FB] = apply(clazz.getName, fb)
 }

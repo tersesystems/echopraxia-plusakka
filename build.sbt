@@ -38,7 +38,7 @@ lazy val actor = (project in file("actor")).settings(
   libraryDependencies += "com.typesafe.akka" %% "akka-actor" % AkkaVersion,
   libraryDependencies += "com.tersesystems.echopraxia.plusscala" %% "api" % echopraxiaPlusScalaVersion,
   libraryDependencies += "com.tersesystems.echopraxia.plusscala" %% "logger" % echopraxiaPlusScalaVersion,
-
+  //
   // different styles of logger
   libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % Test,
   libraryDependencies += "com.tersesystems.echopraxia" % "logstash" % echopraxiaVersion % Test,
