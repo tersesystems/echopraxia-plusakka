@@ -1,6 +1,6 @@
 package akka.echopraxia.stream
 
-import akka.{Done, NotUsed}
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.echopraxia.stream.Implicits._
 import akka.stream.scaladsl._
@@ -28,9 +28,12 @@ class AkkaStreamSpec extends TestKit(ActorSystem("MySpec")) with AnyWordSpecLike
     private implicit val loggingAdapter = EchopraxiaLoggingAdapter(this.getClass, DefaultAkkaStreamFieldBuilder)
 
     private val source: Source[Int, NotUsed] = Source(1 to 4).filter(_ % 2 == 0)
-      .log2.withCondition(condition).withFields(fb => fb.keyValue("foo", "bar")).info("before", (fb, el) => fb.keyValue("elem", el))
+      .elog.withCondition(condition).withFields(fb => fb.keyValue("foo", "bar")).info("before", (fb, el) => fb.keyValue("elem", el))
       .map(_ * 2)
-      .log2.debug("after", (fb, el) => fb.keyValue("elem", el))
+      .elog.debug("after", (fb, el) => fb.keyValue("elem", el))
+
+    val f: Int => String = _.toString
+    Flow.fromFunction(f).elog.debug("name", _.keyValue("elem", _))
 
     def apply(): Source[Int, NotUsed] = source
   }

@@ -3,6 +3,7 @@ package akka.echopraxia.actor
 import akka.actor.{AllForOneStrategy, OneForOneStrategy, Scope}
 import akka.routing.RouterConfig
 import akka.{Done, NotUsed}
+import com.tersesystems.echopraxia.api.Field
 import com.tersesystems.echopraxia.plusscala.api.FieldBuilder
 
 trait AkkaFieldBuilder extends FieldBuilder {
@@ -43,15 +44,19 @@ trait DefaultAkkaFieldBuilder extends AkkaFieldBuilder {
   }
 
   override implicit val actorRefToValue: ToValue[akka.actor.ActorRef] = { actorRef =>
-    ToObjectValue(
-      keyValue("path" -> actorRef.path),
-      keyValue("uid" -> actorRef.hashCode)
-    )
+    ToValue(keyValue("path" -> actorRef.path))
   }
 
   override implicit val actorPathToValue: ToValue[akka.actor.ActorPath] = { actorPath =>
-    ToValue(actorPath.toString)
+    ToObjectValue(
+      keyValue("address" -> actorPath.address),
+      keyValue("name" -> actorPath.name),
+      keyValue("uid" -> actorPath.uid)
+    )
   }
+
+  /* Java API */
+  def keyValue(name: String, actorPath: akka.actor.ActorPath): Field = keyValue(name, ToValue(actorPath))
 
   override implicit def actorSystemToValue: ToValue[akka.actor.ActorSystem] = { actorSystem =>
     ToObjectValue(

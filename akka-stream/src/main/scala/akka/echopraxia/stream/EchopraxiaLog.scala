@@ -10,7 +10,7 @@ import com.tersesystems.echopraxia.api.{CoreLogger, Field, Level}
 
 import scala.util.control.NonFatal
 
-final case class Log2[FB <: AkkaStreamFieldBuilder, T](
+final case class EchopraxiaLog[FB <: AkkaStreamFieldBuilder, T](
   level: Level,
   name: String,
   extract: (FB, T) => Field,
@@ -21,7 +21,7 @@ final case class Log2[FB <: AkkaStreamFieldBuilder, T](
   fieldBuilder: FB
 ) extends SimpleLinearGraphStage[T] {
 
-  override def toString = "Log2"
+  override def toString = "EchopraxiaLog"
 
   override def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
     new GraphStageLogic(shape) with OutHandler with InHandler {
@@ -29,7 +29,7 @@ final case class Log2[FB <: AkkaStreamFieldBuilder, T](
 
       var log: CoreLogger = _
       override def preStart(): Unit = {
-        val frozenMatPath = fieldBuilder.keyValue("materializer", materializer.supervisor.path)(fieldBuilder.actorPathToValue)
+        val frozenMatPath = fieldBuilder.keyValue(EchopraxiaLog.MaterializerKey, materializer.supervisor.path)(fieldBuilder.actorPathToValue)
         log = core.withFields((_: FB) => frozenMatPath, fieldBuilder)
       }
 
@@ -91,10 +91,12 @@ final case class Log2[FB <: AkkaStreamFieldBuilder, T](
 
 }
 
-object Log2 {
+object EchopraxiaLog {
   val NameKey = "name"
 
   val CauseKey = "cause"
 
   val OperationKey = "operation"
+
+  val MaterializerKey = "materializer"
 }

@@ -5,6 +5,9 @@ import akka.stream._
 import akka.stream.impl.TraversalBuilder
 import akka.stream.scaladsl.{Flow, Sink, Source}
 
+/**
+ * A field builder trait that has mappings for Akka Stream components.
+ */
 trait AkkaStreamFieldBuilder extends AkkaFieldBuilder {
 
   implicit def flowToValue[In, Out, Mat]: ToValue[Flow[In, Out, Mat]]
@@ -38,7 +41,10 @@ trait AkkaStreamFieldBuilder extends AkkaFieldBuilder {
   implicit def delayOverflowStrategyToValue: ToValue[DelayOverflowStrategy]
 }
 
-class DefaultAkkaStreamFieldBuilder extends AkkaStreamFieldBuilder with DefaultAkkaFieldBuilder {
+/**
+ * An implementation of AkkaStreamFieldBuilder with pre-built mappings for Akka Stream components.
+ */
+trait DefaultAkkaStreamFieldBuilder extends AkkaStreamFieldBuilder with DefaultAkkaFieldBuilder {
   override implicit def flowToValue[In, Out, Mat]: ToValue[Flow[In, Out, Mat]] = flow =>
     ToObjectValue(
       keyValue("shape" -> flow.shape),

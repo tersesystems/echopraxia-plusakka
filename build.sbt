@@ -1,6 +1,7 @@
 
 ThisBuild / version := "1.0.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.13.8"
+ThisBuild / organization := "com.tersesystems.echopraxia.plusakka"
 
 ThisBuild / resolvers += Resolver.mavenLocal
 ThisBuild / resolvers += Resolver.defaultLocal
@@ -33,6 +34,7 @@ lazy val logging = (project in file("logging")).settings(NoPublish).settings(
 )
 
 lazy val actor = (project in file("actor")).settings(
+  name := "akka-actor",
   crossScalaVersions := supportedScalaVersions,
   //
   libraryDependencies += "com.typesafe.akka" %% "akka-actor" % AkkaVersion,
@@ -41,11 +43,13 @@ lazy val actor = (project in file("actor")).settings(
   //
   // different styles of logger
   libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % Test,
+  libraryDependencies += "com.tersesystems.echopraxia" % "logger" % "2.2.2" % Test,
   libraryDependencies += "com.tersesystems.echopraxia" % "logstash" % echopraxiaVersion % Test,
   libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % AkkaVersion % Test,
 ).dependsOn(logging % "test->test")
 
 lazy val actorTyped = (project in file("actor-typed")).settings(
+  name := "akka-actor-typed",
   crossScalaVersions := supportedScalaVersions,
   //
   libraryDependencies += "com.tersesystems.echopraxia.plusscala" %% "api" % echopraxiaPlusScalaVersion,
@@ -58,6 +62,7 @@ lazy val actorTyped = (project in file("actor-typed")).settings(
 ).dependsOn(actor, logging % "test->test")
 
 lazy val stream = (project in file("akka-stream")).settings(
+  name := "akka-stream",
   crossScalaVersions := supportedScalaVersions,
   //
   libraryDependencies += "com.tersesystems.echopraxia.plusscala" %% "api" % echopraxiaPlusScalaVersion,
