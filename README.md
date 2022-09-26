@@ -280,7 +280,7 @@ Logging in a flow uses the same API.
 
 ```scala 
 val f: Int => String = _.toString
-Flow.fromFunction(f).log2.debug("name", _.keyValue("elem", _))
+Flow.fromFunction(f).elog.debug("name", _.keyValue("elem", _))
 ```
 
 Logging in Akka Streams using the Java API is more involved, because type enrichment is not an option.  If you want to use structured logging in the Java API with Echopraxia, you will need to use 
