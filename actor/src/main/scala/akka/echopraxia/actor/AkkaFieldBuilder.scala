@@ -2,11 +2,18 @@ package akka.echopraxia.actor
 
 import akka.actor.{AllForOneStrategy, OneForOneStrategy, Scope}
 import akka.routing.RouterConfig
+import akka.util.{ByteString, Switch}
 import akka.{Done, NotUsed}
 import com.tersesystems.echopraxia.api.Field
 import com.tersesystems.echopraxia.plusscala.api.FieldBuilder
 
+import java.util.Objects
+
 trait AkkaFieldBuilder extends FieldBuilder {
+
+  implicit def switchToValue: ToValue[Switch]
+
+  implicit def byteStringToValue: ToValue[ByteString]
 
   implicit def doneToValue: ToValue[Done]
 
@@ -35,6 +42,13 @@ trait AkkaFieldBuilder extends FieldBuilder {
 
 trait DefaultAkkaFieldBuilder extends AkkaFieldBuilder {
 
+  implicit def switchToValue: ToValue[Switch] = switch => ToValue(switch.isOn)
+
+  override implicit val byteStringToValue: ToValue[ByteString] = bs => ToObjectValue(
+    keyValue("length" -> bs.length),
+    keyValue("utf8String" -> bs.utf8String)
+  )
+
   override implicit val doneToValue: ToValue[Done] = _ => ToValue(Done.toString)
 
   override implicit val notUsedToValue: ToValue[NotUsed] = _ => ToValue(NotUsed.toString)
@@ -44,7 +58,7 @@ trait DefaultAkkaFieldBuilder extends AkkaFieldBuilder {
   }
 
   override implicit val actorRefToValue: ToValue[akka.actor.ActorRef] = { actorRef =>
-    ToValue(keyValue("path" -> actorRef.path))
+    ToValue(actorRef.path)
   }
 
   override implicit val actorPathToValue: ToValue[akka.actor.ActorPath] = { actorPath =>
@@ -69,7 +83,7 @@ trait DefaultAkkaFieldBuilder extends AkkaFieldBuilder {
     ToObjectValue(
       keyValue("deploy" -> props.deploy),
       keyValue("clazz" -> props.clazz.getName),
-      keyValue("args" -> props.args.map(_.toString))
+      keyValue("args" -> props.args.map(s => Objects.toString(s)))
     )
   }
 
