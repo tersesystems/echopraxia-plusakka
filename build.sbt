@@ -1,10 +1,29 @@
+import sbt.Keys._
 
-ThisBuild / version := "1.0.0-SNAPSHOT"
-ThisBuild / scalaVersion := "2.13.8"
+initialize := {
+  val _        = initialize.value // run the previous initialization
+  val required = "11"
+  val current  = sys.props("java.specification.version")
+  assert(current >= required, s"Unsupported JDK: java.specification.version $current != $required")
+}
+
 ThisBuild / organization := "com.tersesystems.echopraxia.plusakka"
+ThisBuild / homepage     := Some(url("https://github.com/tersesystems/echopraxia-plusakka"))
 
-ThisBuild / resolvers += Resolver.mavenLocal
-ThisBuild / resolvers += Resolver.defaultLocal
+ThisBuild / startYear := Some(2022)
+ThisBuild / licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))
+
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/tersesystems/echopraxia-plusakka"),
+    "scm:git@github.com:tersesystems/echopraxia-plusakka.git"
+  )
+)
+
+ThisBuild / versionScheme := Some("early-semver")
+
+//ThisBuild / resolvers += Resolver.mavenLocal
+//ThisBuild / resolvers += Resolver.defaultLocal
 
 // https://github.com/akka/akka/issues/31064#issuecomment-1060871255
 ThisBuild / libraryDependencySchemes +=
@@ -12,11 +31,11 @@ ThisBuild / libraryDependencySchemes +=
 
 val AkkaVersion = "2.6.20"
 val echopraxiaVersion = "2.2.2"
-val echopraxiaPlusScalaVersion = "1.1.1"
+val echopraxiaPlusScalaVersion = "1.1.0"
 
-lazy val scala213 = "2.13.8"
+lazy val scala213 = "2.13.9"
 lazy val scala212 = "2.12.16"
-lazy val supportedScalaVersions = List(scala212, scala213)
+val supportedScalaVersions = Seq(scala212, scala213)
 
 val NoPublish = Seq(
   //Compile / doc := false,
