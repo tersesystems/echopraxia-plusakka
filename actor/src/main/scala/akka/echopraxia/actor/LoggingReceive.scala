@@ -7,6 +7,7 @@ import akka.event.Logging.LogLevel
 import com.tersesystems.echopraxia.api.{FieldBuilderResult, Level}
 
 import java.util.Objects
+import scala.compat.java8.FunctionConverters.enrichAsJavaFunction
 import scala.language.existentials
 import scala.runtime.BoxedUnit
 
@@ -50,6 +51,7 @@ class LoggingReceive[FB <: AkkaFieldBuilder](r: Receive, label: Option[String], 
 
 
       val fbf: FB => FieldBuilderResult = { fb: FB =>
+        import fb._
         fb.list(
           fb.keyValue("handled" -> handled),
           fb.string("message", Objects.toString(o)),
@@ -57,7 +59,7 @@ class LoggingReceive[FB <: AkkaFieldBuilder](r: Receive, label: Option[String], 
         )
       }
 
-      adapter.core.log(Level.valueOf(logLevel.toString), message, fbf)
+      adapter.core.log(Level.valueOf(logLevel.toString), message, fbf.asJava, adapter.fieldBuilder)
     }
     handled
   }
