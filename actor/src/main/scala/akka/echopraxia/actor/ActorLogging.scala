@@ -15,4 +15,6 @@ trait ActorLogging {
         fb.keyValue("self" -> self),
       )
     })
+
+  protected implicit val loggingAdapter: EchopraxiaLoggingAdapter[FieldBuilderType] = EchopraxiaLoggingAdapter(log)
 }

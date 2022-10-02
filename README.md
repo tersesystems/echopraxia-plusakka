@@ -66,6 +66,17 @@ class MyActor extends Actor with ActorLogging with DefaultAkkaFieldBuilderProvid
 }
 ```
 
+You can also use `LoggingReceive` as usual -- it takes `EchopraxiaLoggingAdapter` as input, which is available from `ActorLogging`:
+
+```scala
+  def receive = LoggingReceive {
+    case "test" => log.info("Received test")
+    case x      => log.warn("Received unknown message: {}", _.string("x" -> x.toString))
+  }
+```
+
+**NOTE**: as in the original `LoggingReceive`, the logging messages will not be enabled unless `akka.actor.debug.receive=true` is set in configuration.
+
 ## Akka Typed Logging
 
 Echopraxia support for Akka Typed can be imported
@@ -245,7 +256,7 @@ Instead, you will need an `EchopraxiaLoggingAdapter` in implicit scope, with `Im
 
 ```scala
 import akka.echopraxia.stream.Implicits._
-import akka.echopraxia.stream.EchopraxiaLoggingAdapter
+import akka.echopraxia.actor.EchopraxiaLoggingAdapter
 
 implicit val loggingAdapter = EchopraxiaLoggingAdapter(this.getClass, MyFieldBuilder)
 ```

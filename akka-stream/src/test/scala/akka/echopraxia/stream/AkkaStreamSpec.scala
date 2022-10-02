@@ -2,6 +2,7 @@ package akka.echopraxia.stream
 
 import akka.NotUsed
 import akka.actor.ActorSystem
+import akka.echopraxia.actor.EchopraxiaLoggingAdapter
 import akka.echopraxia.stream.Implicits._
 import akka.stream.scaladsl._
 import akka.stream.testkit.scaladsl._
