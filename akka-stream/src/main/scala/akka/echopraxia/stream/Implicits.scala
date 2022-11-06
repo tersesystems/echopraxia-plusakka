@@ -1,5 +1,6 @@
 package akka.echopraxia.stream
 
+import akka.echopraxia.actor.EchopraxiaLoggingAdapter
 import akka.stream.scaladsl._
 import com.tersesystems.echopraxia.api._
 import com.tersesystems.echopraxia.plusscala.api.Condition

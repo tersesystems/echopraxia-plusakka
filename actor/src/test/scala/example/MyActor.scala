@@ -1,11 +1,11 @@
 package example
 
 import akka.actor.Actor
-import akka.echopraxia.actor.{ActorLogging, DefaultAkkaFieldBuilderProvider}
+import akka.echopraxia.actor.{ActorLogging, DefaultAkkaFieldBuilderProvider, EchopraxiaLoggingAdapter, LoggingReceive}
 
 class MyActor extends Actor with ActorLogging with DefaultAkkaFieldBuilderProvider {
 
-  override def preStart() = {
+  override def preStart(): Unit = {
     log.debug("Starting")
   }
 
@@ -17,7 +17,7 @@ class MyActor extends Actor with ActorLogging with DefaultAkkaFieldBuilderProvid
     ))
   }
 
-  def receive = {
+  def receive = LoggingReceive {
     case "test" => log.info("Received test")
     case x      => log.warn("Received unknown message: {}", _.string("x" -> x.toString))
   }
