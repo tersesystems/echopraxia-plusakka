@@ -30,10 +30,10 @@ ThisBuild / libraryDependencySchemes +=
   "org.scala-lang.modules" %% "scala-java8-compat" % VersionScheme.Always
 
 val AkkaVersion = "2.6.20"
-val echopraxiaVersion = "2.2.2"
-val echopraxiaPlusScalaVersion = "1.1.0"
+val echopraxiaVersion = "2.2.4"
+val echopraxiaPlusScalaVersion = "1.1.2"
 
-lazy val scala213 = "2.13.9"
+lazy val scala213 = "2.13.10"
 lazy val scala212 = "2.12.16"
 val supportedScalaVersions = Seq(scala212, scala213)
 
@@ -61,8 +61,8 @@ lazy val actor = (project in file("actor")).settings(
   libraryDependencies += "com.tersesystems.echopraxia.plusscala" %% "logger" % echopraxiaPlusScalaVersion,
   //
   // different styles of logger
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % Test,
-  libraryDependencies += "com.tersesystems.echopraxia" % "logger" % "2.2.2" % Test,
+  libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % Test,
+  libraryDependencies += "com.tersesystems.echopraxia" % "logger" % echopraxiaVersion % Test,
   libraryDependencies += "com.tersesystems.echopraxia" % "logstash" % echopraxiaVersion % Test,
   libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % AkkaVersion % Test,
 ).dependsOn(logging % "test->test")
@@ -90,7 +90,7 @@ lazy val stream = (project in file("akka-stream")).settings(
   //
   libraryDependencies += "com.tersesystems.echopraxia" % "logstash" % echopraxiaVersion % Test,
   libraryDependencies += "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion % Test,
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % Test,
+  libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % Test,
   libraryDependencies += "com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion % Test
 ).dependsOn(actor, logging % "test->test")
 

@@ -11,8 +11,8 @@ import scala.reflect.ClassTag
 object Implicits {
 
   implicit class AkkaLoggerOps[FB <: AkkaTypedFieldBuilder](logger: Logger[FB]) {
-
-    private type ToValue[T] = logger.fieldBuilder.ToValue[T]
+    private val fieldBuilder = logger.fieldBuilder
+    private type ToValue[T] = fieldBuilder.ToValue[T]
 
     /**
      * Calls `withFields` with the actor context.
