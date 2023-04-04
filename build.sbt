@@ -30,8 +30,8 @@ ThisBuild / libraryDependencySchemes +=
   "org.scala-lang.modules" %% "scala-java8-compat" % VersionScheme.Always
 
 val AkkaVersion = "2.6.20"
-val echopraxiaVersion = "2.2.4"
-val echopraxiaPlusScalaVersion = "1.1.2"
+val echopraxiaVersion = "2.3.0"
+val echopraxiaPlusScalaVersion = "1.2.0"
 
 lazy val scala213 = "2.13.10"
 lazy val scala212 = "2.12.16"
